@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Násobilkový tréner – v2</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+<style>
+:root { --brand:#2563eb; --ink:#0b1220; --bg:#f8fafc; --mut:#64748b; }
+* { box-sizing:border-box }
+body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink); background:var(--bg) }
+header { background:var(--brand); color:#fff; padding:16px 20px }
+main { max-width:1000px; margin:0 auto; padding:20px }
+.card { background:#fff; border-radius:16px; box-shadow:0 10px 30px rgba(2,6,23,.06); padding:18px; margin:16px 0 }
+.row { display:flex; gap:16px; flex-wrap:wrap }
+.col { flex:1 1 260px }
+button { border:0; border-radius:12px; padding:10px 14px; cursor:pointer }
+button.primary { background:var(--brand); color:#fff }
+button.ghost { background:#e2e8f0; color:#111827 }
+input,select { padding:10px; border:1px solid #cbd5e1; border-radius:10px; width:100% }
+.h2 { font-size:20px; margin:8px 0 }
+.big { font-size:40px; font-weight:800; letter-spacing:.5px; margin:8px 0 }
+.muted { color:var(--mut) }
+.badge { display:inline-block; background:#dbeafe; color:#1e3a8a; border-radius:999px; padding:4px 10px; font-size:12px; margin-left:8px }
+.pill { display:inline-block; padding:2px 8px; border-radius:999px; background:#eef2ff; color:#3730a3; margin-left:8px; font-size:12px }
+.tier { display:inline-block; padding:2px 8px; border-radius:8px; font-size:12px; font-weight:700 }
+.tier.bronze { background:#fff7ed; color:#92400e }
+.tier.silver { background:#f1f5f9; color:#334155 }
+.tier.gold { background:#fef9c3; color:#854d0e }
+.tier.diamond { background:#ecfeff; color:#155e75 }
+.ok { color:#16a34a; font-weight:700 }
+.err { color:#b91c1c; font-weight:700 }
+.progress { height:10px; background:#e2e8f0; border-radius:8px; overflow:hidden }
+.progress > div { height:100%; background:var(--brand) }
+.kudos { padding:10px; border-radius:12px; background:#f0fdf4; color:#166534; display:none; margin-top:8px }
+.lbrow { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px dashed #e5e7eb }
+.lbrow:last-child { border-bottom:0 }
+.avatar { width:28px; height:28px; border-radius:50%; background:#dbeafe; display:flex; align-items:center; justify-content:center; font-weight:800 }
+.small { font-size:12px }
+.right { margin-left:auto }
+hr { border:0; border-top:1px solid #e5e7eb; margin:12px 0 }
+</style>
+</head>
+<body>
+<header>
+  <h1>Násobilkový tréner <span class="badge">PWA</span> <span class="pill">verzia 2</span></h1>
+</header>
+<main>
+
+<section class="card">
+  <div class="row">
+    <div class="col"><div class="h2">Môj profil</div>
+      <div class="row">
+        <div class="col"><input id="nick" placeholder="Prezývka"></div>
+        <div class="col"><select id="avatar">
+          <option>🐯</option><option>🐼</option><option>🦊</option><option>🐸</option>
+          <option>🐨</option><option>🐵</option><option>🦁</option><option>🐰</option>
+        </select></div>
+      </div>
+      <label class="small"><input type="checkbox" id="optin"> Zdieľať výsledky do triedneho rebríčka (PIN)</label>
+    </div>
+    <div class="col">
+      <div class="h2">Denný cieľ</div>
+      <div class="progress"><div id="dailyBar" style="width:0%"></div></div>
+      <div class="small muted">Dokonči 2 krátke kolá (2× 60 s) – 2025</div>
+    </div>
+    <div class="col"><div class="h2">Séria dní</div>
+      <div id="streak" class="big">0 🔥</div>
+      <div class="small muted">Trénoval/a dnes? <span id="trained">nie</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="h2">Cvičenie</div>
+  <div class="row">
+    <div class="col"><label>Rozsah</label><select id="range"><option value="2-10">2 až 10</option><option value="2-5">2 až 5</option><option value="6-10">6 až 10</option></select></div>
+    <div class="col"><label>Typ</label><select id="mode"><option value="mix">Násobenie &amp; Delenie</option><option value="mul">Iba násobenie</option><option value="div">Iba delenie</option></select></div>
+    <div class="col" style="align-self:end"><button class="primary" id="startPractice">Začať cvičiť</button></div>
+  </div>
+  <div id="practiceArea" style="display:none;margin-top:12px">
+    <div class="big" id="qText">6 × 7 = ?</div>
+    <input id="answer" placeholder="Tvoja odpoveď" inputmode="numeric" autocomplete="off">
+    <div style="margin-top:8px">
+      <button class="primary" id="submit">Odpovedať</button>
+      <button class="ghost" id="next">Ďalšia</button>
+    </div>
+    <div id="feedback" class="muted" style="margin-top:8px"></div>
+    <div id="tip" class="small muted"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="h2">1‑min test <span id="tierTag" class="tier bronze">Bronz</span></div>
+  <p class="muted small">Skóre sa porovnáva len v rámci <b>aktuálneho týždňa</b> a zobrazuje sa v <b>pásmach</b> (bronz/striebro/zlato/diamant). Nikto „nevie byť 1. navždy“.</p>
+  <div class="row">
+    <div class="col"><button id="startTest" class="primary">Spustiť 60 s</button></div>
+    <div class="col"><div>Čas: <span id="timer">—</span></div><div>Skóre: <span id="score">0</span></div></div>
+    <div class="col"><div>Osobák: <b id="pb">—</b></div><div>Posledné: <span id="lastResult">—</span></div></div>
+  </div>
+  <div id="testArea" style="display:none;margin-top:12px">
+    <div class="big" id="tQuestion">8 × 9 = ?</div>
+    <input id="tAnswer" placeholder="Odpoveď" inputmode="numeric" autocomplete="off">
+    <div style="margin-top:8px"><button class="primary" id="tSubmit">Odpovedať</button></div>
+    <div id="tFeedback" class="muted" style="margin-top:8px"></div>
+    <div id="kudos" class="kudos"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="row">
+    <div class="col">
+      <div class="h2">Rebríček (týždeň)</div>
+      <p class="muted small">Zdieľa sa len, ak zaškrtneš vo svojom profile a zadáš <b>PIN</b>.</p>
+      <div class="row">
+        <div class="col"><input id="pin" placeholder="PIN triedy" inputmode="numeric"></div>
+        <div class="col" style="align-self:end"><button class="ghost" id="sendScore">Odoslať posledný výsledok</button></div>
+      </div>
+      <div id="board" style="margin-top:10px" class="small muted">Načítaj rebríček...</div>
+      <div style="margin-top:6px"><button class="ghost" id="loadBoard">Načítať rebríček</button></div>
+    </div>
+    <div class="col">
+      <div class="h2">Triedny cieľ (spolu)</div>
+      <div class="progress"><div id="classBar" style="width:0%"></div></div>
+      <div class="small muted">Cieľ týždňa: <b id="classGoal">200</b> bodov • Stav: <b id="classNow">0</b></div>
+      <div class="small muted">Keď trieda dosiahne cieľ → odomkne sa <b>nový odznak</b> pre všetkých 🎉</div>
+    </div>
+  </div>
+  <hr>
+  <div class="small muted">Zobrazenie v pásmach (orientačne): Bronz ≤10, Striebro 11–14, Zlato 15–18, Diamant ≥19.</div>
+</section>
+
+</main>
+<footer class="small muted" style="text-align:center;padding:24px">© 2025 Násobilkový tréner</footer>
+
+<script>
+// ===== KONFIGURÁCIA (uprav) =====
+const API_URL = ''; // ← nechaj prázdne, kým nevyplníš Apps Script URL
+const CLASS_CODE = '4A2025';
+const CLASS_TOKEN = 'abcd1234';
+const CLASS_PIN = '7425';
+const WEEK_GOAL = 200; // triedny spoločný cieľ za týždeň
+// =================================
+
+// PWA
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+
+const $ = (sel) => document.querySelector(sel);
+const nickEl = $('#nick'), avatarEl = $('#avatar'), optinEl = $('#optin');
+const dailyBar = $('#dailyBar'), streakEl = $('#streak'), trainedEl = $('#trained');
+const tierTag = $('#tierTag');
+
+// Local profile
+const prof = JSON.parse(localStorage.getItem('profile')||'{}');
+nickEl.value = prof.nick||'';
+avatarEl.value = prof.avatar||'🐯';
+optinEl.checked = !!prof.optin;
+function saveProfile(){ localStorage.setItem('profile', JSON.stringify({nick:nickEl.value.trim(), avatar:avatarEl.value, optin:optinEl.checked})); }
+nickEl.oninput = saveProfile; avatarEl.onchange = saveProfile; optinEl.onchange = saveProfile;
+
+// Day & streak
+function todayKey(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function weekKey(){ const d=new Date(); const t=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day=(t.getUTCDay()+6)%7; t.setUTCDate(t.getUTCDate()-day); return t.toISOString().slice(0,10); } // ISO week start (Mon)
+
+const daily = JSON.parse(localStorage.getItem('daily')||'{}');
+if(!daily[todayKey()]) daily[todayKey()] = {rounds:0};
+function updateDailyUI(){ const done = Math.min(daily[todayKey()].rounds, 2); dailyBar.style.width = (done/2*100)+'%'; trainedEl.textContent = done>=1 ? 'áno' : 'nie'; }
+updateDailyUI();
+
+let streak = Number(localStorage.getItem('streak')||0);
+function touchStreak(){ const last = localStorage.getItem('lastDay'); const tk=todayKey(); if(last!==tk){ localStorage.setItem('lastDay', tk); streak = (last ? streak+1 : 1); localStorage.setItem('streak', streak); } streakEl.textContent = streak + ' 🔥'; }
+streakEl.textContent = streak + ' 🔥';
+
+// Question engine + hints
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function parseRange(s){ const parts=s.split('-').map(Number); return {a:parts[0], b:parts[1]}; }
+function makeQuestion(mode, rng){ const a=randInt(rng.a, rng.b), b=randInt(rng.a, rng.b);
+  if(mode==='div') return {text:(a*b)+' : '+a+' = ?', ans:b, a:a*b, b:a, type:'div'};
+  if(mode==='mul') return {text:a+' × '+b+' = ?', ans:a*b, a:a, b:b, type:'mul'};
+  return Math.random()<0.5 ? makeQuestion('mul', rng) : makeQuestion('div', rng);
+}
+function hint(q){
+  if(q.type==='mul'){ if(q.a===10||q.b===10) return '×10 = pridať nulu.'; if(q.a===9||q.b===9) return '×9 = ×10 − číslo.'; if(q.a===8||q.b===8) return '×8 = ×4 ×2.'; if(q.a===6||q.b===6) return '×6 = ×3 ×2.'; }
+  if(q.type==='div'){ return 'Skús si to predstaviť ako koľkokrát sa deliteľ zmestí.'; }
+  return '';
+}
+
+// Practice UI
+const rangeSel=$('#range'), modeSel=$('#mode'), startPractice=$('#startPractice');
+const practiceArea=$('#practiceArea'), qText=$('#qText'), answer=$('#answer'), submit=$('#submit'), nextBtn=$('#next'), feedback=$('#feedback'), tip=$('#tip');
+let currentQ=null;
+function newPracticeQ(){ const rng=parseRange(rangeSel.value); currentQ=makeQuestion(modeSel.value, rng); qText.textContent=currentQ.text; feedback.textContent=''; tip.textContent=''; answer.value=''; answer.focus(); }
+startPractice.onclick = function(){ practiceArea.style.display='block'; newPracticeQ(); };
+submit.onclick = function(){ const v=Number(answer.value); if(v===currentQ.ans){ feedback.innerHTML='<span class="ok">Výborne!</span>'; } else { feedback.innerHTML='<span class="err">Skús znova.</span>'; tip.textContent=hint(currentQ); } };
+nextBtn.onclick = newPracticeQ;
+
+// 60 s test + motivational messaging
+const startTest=$('#startTest'), testArea=$('#testArea'), tQuestion=$('#tQuestion'), tAnswer=$('#tAnswer'), tSubmit=$('#tSubmit'), timerEl=$('#timer'), scoreEl=$('#score'), tFeedback=$('#tFeedback'), kudos=$('#kudos'), lastResultEl=$('#lastResult'), pbEl=$('#pb');
+let tQ=null, tScore=0, tLeft=60, tInt=null, attempts=0;
+function newTestQ(){ const rng=parseRange(rangeSel.value); tQ=makeQuestion('mix', rng); tQuestion.textContent=tQ.text; tAnswer.value=''; tAnswer.focus(); }
+function tier(score){ if(score>=19) return 'diamond'; if(score>=15) return 'gold'; if(score>=11) return 'silver'; return 'bronze'; }
+function tierLabel(t){ return {bronze:'Bronz', silver:'Striebro', gold:'Zlato', diamond:'Diamant'}[t]; }
+function setTier(score){ const t=tier(score); tierTag.className = 'tier '+t; tierTag.textContent = tierLabel(t); }
+
+const lastTest = JSON.parse(localStorage.getItem('lastTest')||'null');
+if(lastTest) lastResultEl.textContent = lastTest.score + '/' + (lastTest.total||'20');
+const pb = Number(localStorage.getItem('pb')||0);
+pbEl.textContent = pb ? pb : '—';
+
+function endTest(){ clearInterval(tInt); testArea.style.display='none'; kudos.style.display='none';
+  const result = {score:tScore, total:attempts, date:new Date().toISOString(), week:weekKey()};
+  localStorage.setItem('lastTest', JSON.stringify(result));
+  lastResultEl.textContent = result.score + '/' + result.total;
+  if(result.score > pb){ localStorage.setItem('pb', result.score); pbEl.textContent = result.score; kudos.style.display='block'; kudos.textContent='Nový osobák! 👏'; }
+  const prev = JSON.parse(localStorage.getItem('history')||'[]'); prev.push(result); localStorage.setItem('history', JSON.stringify(prev.slice(-50)));
+  // Denný cieľ + streak
+  daily[todayKey()].rounds = (daily[todayKey()].rounds||0)+1; localStorage.setItem('daily', JSON.stringify(daily)); updateDailyUI(); touchStreak();
+  setTier(result.score);
+}
+
+function tick(){ tLeft--; timerEl.textContent=tLeft+' s'; if(tLeft<=0) endTest(); }
+tSubmit.onclick = function(){ const v=Number(tAnswer.value); if(!Number.isFinite(v)) return; if(v===tQ.ans){ tScore++; scoreEl.textContent=tScore; tFeedback.innerHTML='<span class="ok">Správne!</span>'; } else { tFeedback.innerHTML='<span class="err">Nesprávne.</span>'; } attempts++; newTestQ(); };
+startTest.onclick = function(){ tScore=0; attempts=0; scoreEl.textContent='0'; tLeft=60; timerEl.textContent='60 s'; testArea.style.display='block'; newTestQ(); clearInterval(tInt); tInt=setInterval(tick, 1000); };
+
+// ===== Rebríček: opt-in + PIN + týždenné kolá + pásma =====
+function urlencode(obj){ return Object.entries(obj).map(function(kv){return encodeURIComponent(kv[0])+'='+encodeURIComponent(kv[1]);}).join('&'); }
+function deviceId(){ var id=localStorage.getItem('deviceId'); if(!id){ id = Date.now().toString(36)+Math.random().toString(36).slice(2); localStorage.setItem('deviceId', id); } return id; }
+function maskName(n){ if(!n) return '—'; if(n.length<=2) return n[0]+'*'; return n[0]+('•'.repeat(Math.max(1, n.length-2)))+n[n.length-1]; }
+function band(score){ var t=tier(score); return {bronze:'🥉 Bronz', silver:'🥈 Striebro', gold:'🥇 Zlato', diamond:'💎 Diamant'}[t]; }
+
+document.getElementById('sendScore').onclick = function(){
+  if(!API_URL) return alert('Rebríček je vypnutý (API_URL je prázdne).');
+  if(!optinEl.checked) return alert('Najprv povoľ zdieľanie výsledkov (profil).');
+  var pin = document.getElementById('pin').value.trim(); if(pin!==CLASS_PIN) return alert('Nesprávny PIN triedy.');
+  var lt = JSON.parse(localStorage.getItem('lastTest')||'null'); if(!lt) return alert('Najprv absolvuj 60 s test.');
+  if(lt.week !== weekKey()) return alert('Pošli výsledok z tohto týždňa.');
+  var name = (nickEl.value.trim()||'—').slice(0,20);
+  var params = { action:'add', classCode:CLASS_CODE, token:CLASS_TOKEN, nickname:name, score:lt.score, total:lt.total, deviceId:deviceId(), band:band(lt.score) };
+  fetch(API_URL + '?' + urlencode(params), {mode:'no-cors'}).then(function(){ alert('Odoslané. Po chvíli načítaj rebríček.'); }).catch(function(){ alert('Skús znova neskôr.'); });
+};
+
+document.getElementById('loadBoard').onclick = function(){
+  var board = document.getElementById('board');
+  if(!API_URL){ board.textContent='Rebríček je vypnutý.'; return; }
+  var cb = 'cb'+Math.random().toString(36).slice(2);
+  window[cb] = function(data){
+    if(!data||!data.ok){ board.textContent='Chyba načítania.'; return; }
+    var rows = (data.top||[]);
+    if(!rows.length){ board.textContent='Zatiaľ žiadne údaje.'; return; }
+    var html = rows.map(function(r){
+      return '<div class="lbrow"><div class="avatar">★</div><div><b>'+ maskName(r.nickname||'—') +'</b> <span class="small muted">('+(r.band||band(r.score))+')</span></div><div class="right"><b>'+ (r.score||0) +'</b>/<span class="muted small">'+ (r.total||20) +'</span></div></div>';
+    }).join('');
+    board.innerHTML = html;
+    // Triedny cieľ
+    var sum = rows.reduce(function(s,r){ return s + (Number(r.score)||0); }, 0);
+    document.getElementById('classNow').textContent = sum; document.getElementById('classGoal').textContent = WEEK_GOAL;
+    var pct = Math.max(0, Math.min(100, Math.round(sum/WEEK_GOAL*100))); document.getElementById('classBar').style.width = pct+'%';
+    setTimeout(function(){ delete window[cb]; }, 1000);
+  };
+  var s = document.createElement('script');
+  s.src = API_URL + '?' + urlencode({ action:'top', classCode:CLASS_CODE, token:CLASS_TOKEN, limit:30, period:'week', callback:cb });
+  s.onerror = function(){ board.textContent='Chyba načítania.'; };
+  document.body.appendChild(s);
+};
+
+// Inicializácia
+setTier(Number(localStorage.getItem('pb')||0));
+</script>
+</body>
+</html>
