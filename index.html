@@ -198,29 +198,14 @@ function dropConfetti(){ for(let i=0;i<60;i++){ const s=document.createElement('
 
 /* ====== PROFIL / LOKÁLNE DÁTA (safe) ====== */
 const PROF_KEY='leaderProfileV1', HEAT_KEY='heatV1', HIST_KEY='testHistoryV1', STREAK_KEY='streakDaysV1';
-
-function safeGet(key, fallback){
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : (fallback ?? null); }
-  catch(e){ console.warn('localStorage get error', e); return (fallback ?? null); }
-}
-function safeSet(key, value){
-  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
-  catch(e){ console.warn('localStorage set error', e); alert('Nepodarilo sa uložiť do zariadenia. Povoľ ukladanie dát alebo skús iný prehliadač.'); return false; }
-}
-
-function saveProfile(p){ return safeSet(PROF_KEY, p); }
-function loadProfile(){ return safeGet(PROF_KEY, {}) || {}; }
-
-function getDeviceId(){
-  const k='deviceIdV1';
-  let id = safeGet(k, null);
-  if(!id){ id='d-'+Math.random().toString(36).slice(2)+'-'+Date.now(); safeSet(k, id); }
-  return id;
-}
+function safeGet(key, fallback){ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):(fallback??null);}catch(e){ console.warn('ls get',e); return (fallback??null);} }
+function safeSet(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); return true;}catch(e){ console.warn('ls set',e); alert('Nepodarilo sa uložiť do zariadenia. Povoľ ukladanie dát alebo skús iný prehliadač.'); return false;} }
+function saveProfile(p){ return safeSet(PROF_KEY,p); }
+function loadProfile(){ return safeGet(PROF_KEY,{})||{}; }
+function getDeviceId(){ const k='deviceIdV1'; let id=safeGet(k,null); if(!id){ id='d-'+Math.random().toString(36).slice(2)+'-'+Date.now(); safeSet(k,id);} return id; }
 function todayYmd(){ const d=new Date(); return d.toISOString().slice(0,10); }
-function markStreakToday(){ const s=new Set(safeGet(STREAK_KEY, [])||[]); s.add(todayYmd()); safeSet(STREAK_KEY, [...s]); }
-function computeStreak(){ const set=new Set(safeGet(STREAK_KEY, [])||[]); let cnt=0; const now=new Date();
-  for(let i=0;i<400;i++){ const d=new Date(now); d.setDate(now.getDate()-i); const y=d.toISOString().slice(0,10); if(set.has(y)) cnt++; else break; } return cnt; }
+function markStreakToday(){ const s=new Set(safeGet(STREAK_KEY,[])||[]); s.add(todayYmd()); safeSet(STREAK_KEY,[...s]); }
+function computeStreak(){ const set=new Set(safeGet(STREAK_KEY,[])||[]); let cnt=0,now=new Date(); for(let i=0;i<400;i++){ const d=new Date(now); d.setDate(now.getDate()-i); const y=d.toISOString().slice(0,10); if(set.has(y)) cnt++; else break; } return cnt; }
 
 /* ====== CVIČENIE ====== */
 let families=new Set([6,7,8,9]); let cur=[7,8]; let right=0,total=0;
@@ -297,7 +282,7 @@ function renderAnalytics(){
   anaBadges.innerHTML=badges.map(x=>`<span class="pill">${x}</span>`).join(' ');
 }
 
-/* ====== REBRÍČEK ====== */
+/* ====== REBRÍČEK (JSONP ako default – spoľahlivé) ====== */
 function renderProfile(){
   const p=loadProfile();
   const nick=document.getElementById('nick'), cls=document.getElementById('classCode'), sig=document.getElementById('signature');
@@ -317,12 +302,13 @@ if(btnSaveProfile){
 
 function openLeader(){ show('section-leader'); renderProfile(); }
 
-async function sendScorePOST(body){
-  const r = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-  if(!r.ok) throw new Error('HTTP '+r.status); const j=await r.json(); if(!j.ok) throw new Error('Server'); return j;
-}
 function sendScoreJSONP(body){
-  return new Promise((resolve)=>{ const cb='cb'+Math.random().toString(36).slice(2); window[cb]= (d)=>{ delete window[cb]; resolve(d||{ok:false}); }; const qs=new URLSearchParams({...body, action:'add', callback:cb}); const s=document.createElement('script'); s.src=API_URL+'?'+qs.toString(); document.body.appendChild(s); });
+  return new Promise((resolve)=>{
+    const cb='cb'+Math.random().toString(36).slice(2);
+    window[cb]=(d)=>{ delete window[cb]; resolve(d||{ok:false}); };
+    const qs=new URLSearchParams({...body, action:'add', callback:cb});
+    const s=document.createElement('script'); s.src=API_URL+'?'+qs.toString(); document.body.appendChild(s);
+  });
 }
 
 const btnSubmit=document.getElementById('submitScore');
@@ -335,8 +321,9 @@ if(btnSubmit){
     if(!p.signature){ alert('Doplň svoj podpis (meno/prezývka).'); return; }
     if(!API_URL){ alert('Rebríček je vypnutý (API_URL je prázdne).'); return; }
     const body={ classCode:CLASS_CODE, token:CLASS_TOKEN, nickname:p.nickname, score:t.score, total:t.total, deviceId:getDeviceId(), signature:p.signature };
-    try{ await sendScorePOST(body); alert('Skóre odoslané ✓'); }
-    catch(e){ console.warn('POST fail',e); const d=await sendScoreJSONP(body); alert(d&&d.ok?'Skóre odoslané ✓':'Odoslanie zlyhalo. Skontroluj API_URL/KÓDY.'); }
+    const d = await sendScoreJSONP(body); // JSONP default (spoľahlivé na GAS)
+    if (d && d.ok) { alert('Skóre odoslané ✓'); }
+    else { alert('Odoslanie zlyhalo. Skontroluj API_URL / CLASS_CODE / CLASS_TOKEN.'); }
   });
 }
 
