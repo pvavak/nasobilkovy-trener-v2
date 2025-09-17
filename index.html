@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <style>
     :root{--bg:#0b1220;--panel:#0f172a;--card:#111b2e;--muted:#9fb3c8;--text:#e6eef9;--pri:#60a5fa;--ok:#34d399;--bad:#f87171;--line:rgba(148,163,184,.28)}
-    *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial}
+    *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
     .wrap{max-width:980px;margin:0 auto;padding:20px}
     .top{display:flex;gap:12px;align-items:center;justify-content:space-between}
     h1{font-size:22px;margin:6px 0 12px}
@@ -46,11 +46,11 @@
         <div class="muted">4. ročník • malá násobilka (1–10) • režim <span class="pill">len naša trieda</span></div>
       </div>
       <div class="nav">
-        <button class="btn pri" onclick="show('section-main')">Cvičenie</button>
-        <button class="btn pri" onclick="show('section-test')">1-min test</button>
-        <button class="btn" onclick="show('section-analytics')">Analýza</button>
-        <button class="btn" onclick="show('section-leader')">Rebríček</button>
-        <button class="btn out" onclick="toggleTheme()">🌓</button>
+        <button type="button" class="btn pri" onclick="show('section-main')">Cvičenie</button>
+        <button type="button" class="btn pri" onclick="show('section-test')">1-min test</button>
+        <button type="button" class="btn" onclick="show('section-analytics')">Analýza</button>
+        <button type="button" class="btn" onclick="show('section-leader')">Rebríček</button>
+        <button type="button" class="btn out" onclick="toggleTheme()">🌓</button>
       </div>
     </div>
 
@@ -63,10 +63,10 @@
           <div id="familiesBtns"></div>
         </div>
         <div class="row" style="flex-wrap:wrap;margin-bottom:16px">
-          <button class="btn" onclick="selectFamilies([2,3,4])">×2 ×3 ×4</button>
-          <button class="btn" onclick="selectFamilies([5,10])">×5 ×10</button>
-          <button class="btn" onclick="selectFamilies([6,7,8,9])">×6 ×7 ×8 ×9</button>
-          <button class="btn out" onclick="families=new Set([2,3,4,5,6,7,8,9,10]);renderFamilies()">Všetko</button>
+          <button type="button" class="btn" onclick="selectFamilies([2,3,4])">×2 ×3 ×4</button>
+          <button type="button" class="btn" onclick="selectFamilies([5,10])">×5 ×10</button>
+          <button type="button" class="btn" onclick="selectFamilies([6,7,8,9])">×6 ×7 ×8 ×9</button>
+          <button type="button" class="btn out" onclick="families=new Set([2,3,4,5,6,7,8,9,10]);renderFamilies()">Všetko</button>
         </div>
         <div class="grid">
           <div class="card">
@@ -75,7 +75,7 @@
               <div class="row" style="gap:12px;align-items:flex-end">
                 <div id="qBox" style="font-size:28px;font-weight:700">7 × 8 = ?</div>
                 <input type="number" id="ans" placeholder="tvoja odpoveď" style="max-width:160px" />
-                <button class="btn pri" onclick="check()">Skontrolovať</button>
+                <button type="button" class="btn pri" onclick="check()">Skontrolovať</button>
                 <span id="feedback" class="pill hidden">Správne!</span>
               </div>
               <div class="muted" id="tip" style="margin-top:10px"></div>
@@ -99,16 +99,15 @@
       <div class="bd">
         <div class="row" style="gap:10px;flex-wrap:wrap;margin-bottom:12px">
           <label class="row"><input type="checkbox" id="timeStrict" checked style="margin-right:8px"> prísny limit 60 s</label>
-          <button class="btn ok" id="beginTest">Spustiť test</button>
+          <button type="button" class="btn ok" id="beginTest">Spustiť test</button>
           <span class="kpi">⏱ <b id="timer">60 s</b></span>
           <span class="kpi">✅ <b id="score">0 správne</b></span>
         </div>
         <div id="testBox" class="row" style="gap:12px;align-items:flex-end">
           <div id="testQ" style="font-size:28px;font-weight:700">—</div>
           <input type="number" id="testA" placeholder="odpoveď" style="width:140px" />
-          <button class="btn pri" onclick="testAnswer()">OK</button>
+          <button type="button" class="btn pri" onclick="testAnswer()">OK</button>
         </div>
-
         <div id="testSummary" class="hidden" style="margin-top:14px"></div>
       </div>
     </section>
@@ -154,7 +153,7 @@
                 </div>
               </div>
               <div class="row" style="gap:8px;margin-top:10px">
-                <button class="btn ok" id="saveProfile">Uložiť profil</button>
+                <button type="button" class="btn ok" id="saveProfile">Uložiť profil</button>
                 <span class="muted" id="leaderInfo">Najprv spusti 1-min test.</span>
               </div>
             </div>
@@ -164,8 +163,8 @@
             <div class="hd">Odoslanie výsledku & načítanie TOP</div>
             <div class="bd">
               <div class="row" style="gap:8px;flex-wrap:wrap">
-                <button class="btn pri" id="submitScore">Odoslať posledný 1-min výsledok</button>
-                <button class="btn" id="loadTop">Načítať rebríček</button>
+                <button type="button" class="btn pri" id="submitScore">Odoslať posledný 1-min výsledok</button>
+                <button type="button" class="btn" id="loadTop">Načítať rebríček</button>
               </div>
               <div class="muted" style="margin-top:8px">Zobrazujú sa len prezývky. Podpis ide len do tabuľky učiteľa.</div>
               <table style="margin-top:10px">
@@ -185,35 +184,52 @@
 
 <script>
 /* ====== KONŠTANTY (TVOJE HODNOTY) ====== */
-const API_URL     = 'https://script.google.com/macros/s/AKfycbwcPFGrBR-FsFTto4aLHlXyc7ywfhI-UlJitfPjlrh9_k6mP2MREojWXEFuBav7CBVsrA/exec';
+const API_URL     = 'https://script.google.com/macros/s/AKfycbzYFssm-b7ZHYX9POrYeiwSH-84wDJHI0x-6GA6KTLxWlQ2sUKEfvFWyUtP8ZTp-R5KTg/exec';
 const CLASS_CODE  = '4A2025';
 const CLASS_TOKEN = 'tajny-token-4A';
 const CLASS_PIN   = '7425';
 
-/* ====== UI HELPERS ====== */
+/* ====== POMOCNÉ FUNKCIE ====== */
 function show(id){ for(const s of ['section-main','section-test','section-analytics','section-leader']){ document.getElementById(s).classList.toggle('hidden', s!==id); } }
 function toggleTheme(){ document.documentElement.style.filter = (document.documentElement.style.filter?'':'contrast(1.02) saturate(1.02)'); }
 function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function dropConfetti(){ for(let i=0;i<60;i++){ const s=document.createElement('div'); s.className='confetti'; s.textContent=['🎉','✨','🎈','🎊'][Math.floor(Math.random()*4)]; s.style.left=Math.floor(Math.random()*100)+'vw'; s.style.animationDelay=(Math.random()*0.6)+'s'; document.body.appendChild(s); setTimeout(()=>s.remove(),2300);} }
 
-/* ====== PROFIL / LOKÁLNE DÁTA ====== */
+/* ====== PROFIL / LOKÁLNE DÁTA (safe) ====== */
 const PROF_KEY='leaderProfileV1', HEAT_KEY='heatV1', HIST_KEY='testHistoryV1', STREAK_KEY='streakDaysV1';
-function saveProfile(p){ localStorage.setItem(PROF_KEY, JSON.stringify(p)); }
-function loadProfile(){ try{return JSON.parse(localStorage.getItem(PROF_KEY)||'{}');}catch(e){return {}} }
-function getDeviceId(){ const k='deviceIdV1'; let id=localStorage.getItem(k); if(!id){ id='d-'+Math.random().toString(36).slice(2)+'-'+Date.now(); localStorage.setItem(k,id);} return id; }
+
+function safeGet(key, fallback){
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : (fallback ?? null); }
+  catch(e){ console.warn('localStorage get error', e); return (fallback ?? null); }
+}
+function safeSet(key, value){
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch(e){ console.warn('localStorage set error', e); alert('Nepodarilo sa uložiť do zariadenia. Povoľ ukladanie dát alebo skús iný prehliadač.'); return false; }
+}
+
+function saveProfile(p){ return safeSet(PROF_KEY, p); }
+function loadProfile(){ return safeGet(PROF_KEY, {}) || {}; }
+
+function getDeviceId(){
+  const k='deviceIdV1';
+  let id = safeGet(k, null);
+  if(!id){ id='d-'+Math.random().toString(36).slice(2)+'-'+Date.now(); safeSet(k, id); }
+  return id;
+}
 function todayYmd(){ const d=new Date(); return d.toISOString().slice(0,10); }
-function markStreakToday(){ const s=new Set(JSON.parse(localStorage.getItem(STREAK_KEY)||'[]')); s.add(todayYmd()); localStorage.setItem(STREAK_KEY, JSON.stringify([...s])); }
-function computeStreak(){ const s=new Set(JSON.parse(localStorage.getItem(STREAK_KEY)||'[]')); let cnt=0; const now=new Date(); for(let i=0;i<400;i++){ const d=new Date(now); d.setDate(now.getDate()-i); const y=d.toISOString().slice(0,10); if(s.has(y)) cnt++; else break; } return cnt; }
+function markStreakToday(){ const s=new Set(safeGet(STREAK_KEY, [])||[]); s.add(todayYmd()); safeSet(STREAK_KEY, [...s]); }
+function computeStreak(){ const set=new Set(safeGet(STREAK_KEY, [])||[]); let cnt=0; const now=new Date();
+  for(let i=0;i<400;i++){ const d=new Date(now); d.setDate(now.getDate()-i); const y=d.toISOString().slice(0,10); if(set.has(y)) cnt++; else break; } return cnt; }
 
 /* ====== CVIČENIE ====== */
 let families=new Set([6,7,8,9]); let cur=[7,8]; let right=0,total=0;
-function renderFamilies(){ const root=document.getElementById('familiesBtns'); root.innerHTML=''; for(let n=2;n<=10;n++){ if(n===1) continue; const b=document.createElement('button'); b.className='btn'+(families.has(n)?' ok':''); b.textContent='×'+n; b.onclick=()=>{ if(families.has(n)) families.delete(n); else families.add(n); renderFamilies(); next(); }; root.appendChild(b);} }
+function renderFamilies(){ const root=document.getElementById('familiesBtns'); root.innerHTML=''; for(let n=2;n<=10;n++){ if(n===1) continue; const b=document.createElement('button'); b.type='button'; b.className='btn'+(families.has(n)?' ok':''); b.textContent='×'+n; b.onclick=()=>{ if(families.has(n)) families.delete(n); else families.add(n); renderFamilies(); next(); }; root.appendChild(b);} }
 function selectFamilies(arr){ families=new Set(arr); renderFamilies(); next(); }
 function next(){ const fa=[...families]; const a=fa[rand(0,fa.length-1)], b=rand(1,10); cur=[a,b]; document.getElementById('qBox').textContent = `${a} × ${b} = ?`; document.getElementById('ans').value=''; document.getElementById('feedback').classList.add('hidden'); document.getElementById('ans').focus(); }
 function tipFor(a,b){ if(a===9) return '9×? → 10× − 1×'; if([2,4,8].includes(a)) return '×2 → zdvojnásob, ×4 → dvakrát, ×8 → trikrát'; if(a===5||a===10) return '×10 pridaj nulu, ×5 je polovica z ×10'; return 'Rozlož: '+a+'×'+b+' = '+a+'×('+(b-1)+'+1)'; }
-function updateHeat(a,b,ok){ const H=JSON.parse(localStorage.getItem(HEAT_KEY)||'{}'); const k=a+'x'+b; const o=H[k]||{right:0,total:0}; o.total++; if(ok) o.right++; H[k]=o; localStorage.setItem(HEAT_KEY, JSON.stringify(H)); renderHeat(); }
-function renderHeat(){ const box=document.getElementById('heat'); const H=JSON.parse(localStorage.getItem(HEAT_KEY)||'{}'); let html='<table><thead><tr><th></th>'; for(let j=1;j<=10;j++) html+=`<th>×${j}</th>`; html+='</tr></thead><tbody>'; for(let i=1;i<=10;i++){ html+=`<tr><th>${i}</th>`; for(let j=1;j<=10;j++){ const o=H[i+'x'+j]||{right:0,total:0}; const acc=o.total? o.right/o.total : 0; const bg= o.total? `background: linear-gradient(90deg, rgba(52,211,153,${acc}) 0%, rgba(11,18,32,.6) 100%);` : 'background:#0b1220;'; html+=`<td style="${bg}">${o.total? Math.round(acc*100)+'%':''}</td>`; } html+='</tr>'; } html+='</tbody></table>'; box.innerHTML=html; }
+function updateHeat(a,b,ok){ const H=safeGet(HEAT_KEY,{})||{}; const k=a+'x'+b; const o=H[k]||{right:0,total:0}; o.total++; if(ok) o.right++; H[k]=o; safeSet(HEAT_KEY,H); renderHeat(); }
+function renderHeat(){ const box=document.getElementById('heat'); const H=safeGet(HEAT_KEY,{})||{}; let html='<table><thead><tr><th></th>'; for(let j=1;j<=10;j++) html+=`<th>×${j}</th>`; html+='</tr></thead><tbody>'; for(let i=1;i<=10;i++){ html+=`<tr><th>${i}</th>`; for(let j=1;j<=10;j++){ const o=H[i+'x'+j]||{right:0,total:0}; const acc=o.total? o.right/o.total : 0; const bg= o.total? `background: linear-gradient(90deg, rgba(52,211,153,${acc}) 0%, rgba(11,18,32,.6) 100%);` : 'background:#0b1220;'; html+=`<td style="${bg}">${o.total? Math.round(acc*100)+'%':''}</td>`; } html+='</tr>'; } html+='</tbody></table>'; box.innerHTML=html; }
 function check(){ const a=cur[0], b=cur[1]; const v=Number(document.getElementById('ans').value||''); const ok=(a*b===v); document.getElementById('feedback').textContent = ok?'Správne!':'Ešte raz'; document.getElementById('feedback').style.borderColor = ok ? '#178d68' : '#a61b2b'; document.getElementById('feedback').classList.remove('hidden'); document.getElementById('tip').textContent = tipFor(a,b); total++; if(ok) right++; document.getElementById('statRight').textContent = right+' správne'; document.getElementById('statTotal').textContent = total+' pokusov'; updateHeat(a,b,ok); setTimeout(next, 400); }
 
 /* ====== TEST ====== */
@@ -233,7 +249,7 @@ function nextTestQ(){ const a=rand(2,10), b=rand(1,10); testState.cur=[a,b]; doc
 function testAnswer(){ if(!testState.running) return; const v=Number(document.getElementById('testA').value||''); const ok=(testState.cur[0]*testState.cur[1]===v); if(ok) testState.score++; testState.total++; document.getElementById('score').textContent=testState.score+' správne'; nextTestQ(); }
 function finishTest(){
   testState.running=false; if(testState.timer) clearInterval(testState.timer);
-  window.lastTest={score:testState.score,total:testState.total,accuracy:(testState.total?testState.score/testState.total:0),ts:Date.now(),durationSec: (60 - Math.max(0,testState.left))};
+  window.lastTest={score:testState.score,total:testState.total,accuracy:(testState.total?testState.score/testState.total:0),ts:Date.now(),durationSec:(60-Math.max(0,testState.left))};
   const hist=loadHistory(); const prev=hist.length? hist[hist.length-1]:null; hist.push(window.lastTest); saveHistory(hist);
   const delta = prev? (window.lastTest.score - prev.score) : null;
   const best  = hist.reduce((m,x)=>Math.max(m,x.score),0);
@@ -256,18 +272,18 @@ function finishTest(){
       </div>
       <div class="muted" style="margin-top:8px">Tip: Dnes trénuj slabé fakty: <b>${wf||'—'}</b>.</div>
       <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap">
-        <button class="btn ok" onclick="families=new Set(weakFamilies());renderFamilies();show('section-main')">Trénovať slabé fakty</button>
-        <button class="btn" onclick="openLeader()">Odoslať do rebríčka</button>
-        <button class="btn out" onclick="renderAnalytics();show('section-analytics')">Analýza</button>
+        <button type="button" class="btn ok" onclick="families=new Set(weakFamilies());renderFamilies();show('section-main')">Trénovať slabé fakty</button>
+        <button type="button" class="btn" onclick="openLeader()">Odoslať do rebríčka</button>
+        <button type="button" class="btn out" onclick="renderAnalytics();show('section-analytics')">Analýza</button>
       </div>
     </div>`;
 }
 document.getElementById('testA').addEventListener('keydown',e=>{ if(e.key==='Enter') testAnswer(); });
 
 /* ====== HISTÓRIA & ANALÝZA ====== */
-function loadHistory(){ try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return [];} }
-function saveHistory(a){ localStorage.setItem(HIST_KEY, JSON.stringify(a.slice(-100))); }
-function weakFamilies(){ const H=JSON.parse(localStorage.getItem(HEAT_KEY)||'{}'); const acc={};
+function loadHistory(){ return safeGet(HIST_KEY,[])||[]; }
+function saveHistory(a){ safeSet(HIST_KEY, a.slice(-100)); }
+function weakFamilies(){ const H=safeGet(HEAT_KEY,{})||{}; const acc={};
   for(let a=2;a<=10;a++){ let r=0,t=0; for(let b=1;b<=10;b++){ const o=H[a+'x'+b]; if(o){ r+=o.right||0; t+=o.total||0; } } acc[a]= t? (r/t) : 0; }
   return Object.entries(acc).sort((x,y)=>x[1]-y[1]).slice(0,3).map(([n,_])=>Number(n));
 }
@@ -281,14 +297,23 @@ function renderAnalytics(){
   anaBadges.innerHTML=badges.map(x=>`<span class="pill">${x}</span>`).join(' ');
 }
 
-/* ====== REBRÍČEK (len trieda) ====== */
+/* ====== REBRÍČEK ====== */
 function renderProfile(){
   const p=loadProfile();
   const nick=document.getElementById('nick'), cls=document.getElementById('classCode'), sig=document.getElementById('signature');
   if(nick) nick.value=p.nickname||''; if(cls){ cls.value=CLASS_CODE; cls.setAttribute('readonly','readonly'); } if(sig) sig.value=p.signature||'';
   const li=document.getElementById('leaderInfo'); if(li) li.textContent = window.lastTest? ('Posledný 1-min výsledok: '+window.lastTest.score+' z '+window.lastTest.total):'Najprv spusti 1-min test.';
 }
-const btnSaveProfile=document.getElementById('saveProfile'); if(btnSaveProfile){ btnSaveProfile.addEventListener('click',()=>{ const p={ nickname:document.getElementById('nick').value.trim(), signature:document.getElementById('signature').value.trim() }; saveProfile(p); renderProfile(); }); }
+const btnSaveProfile=document.getElementById('saveProfile');
+if(btnSaveProfile){
+  btnSaveProfile.addEventListener('click',()=>{
+    const p={ nickname:(document.getElementById('nick')?.value||'').trim(),
+              signature:(document.getElementById('signature')?.value||'').trim() };
+    if(!p.nickname){ alert('Doplň prezývku.'); return; }
+    if(!p.signature){ alert('Doplň podpis (meno/prezývka).'); return; }
+    if(saveProfile(p)){ renderProfile(); alert('Profil uložený ✓'); }
+  });
+}
 
 function openLeader(){ show('section-leader'); renderProfile(); }
 
@@ -300,7 +325,8 @@ function sendScoreJSONP(body){
   return new Promise((resolve)=>{ const cb='cb'+Math.random().toString(36).slice(2); window[cb]= (d)=>{ delete window[cb]; resolve(d||{ok:false}); }; const qs=new URLSearchParams({...body, action:'add', callback:cb}); const s=document.createElement('script'); s.src=API_URL+'?'+qs.toString(); document.body.appendChild(s); });
 }
 
-const btnSubmit=document.getElementById('submitScore'); if(btnSubmit){
+const btnSubmit=document.getElementById('submitScore');
+if(btnSubmit){
   btnSubmit.addEventListener('click', async ()=>{
     const p=loadProfile(), t=window.lastTest, pin=(document.getElementById('pin')?.value||'').trim();
     if(!t){ alert('Najprv urob 1-min test.'); return; }
@@ -310,22 +336,30 @@ const btnSubmit=document.getElementById('submitScore'); if(btnSubmit){
     if(!API_URL){ alert('Rebríček je vypnutý (API_URL je prázdne).'); return; }
     const body={ classCode:CLASS_CODE, token:CLASS_TOKEN, nickname:p.nickname, score:t.score, total:t.total, deviceId:getDeviceId(), signature:p.signature };
     try{ await sendScorePOST(body); alert('Skóre odoslané ✓'); }
-    catch(e){ const d=await sendScoreJSONP(body); alert(d&&d.ok?'Skóre odoslané ✓':'Odoslanie zlyhalo'); }
+    catch(e){ console.warn('POST fail',e); const d=await sendScoreJSONP(body); alert(d&&d.ok?'Skóre odoslané ✓':'Odoslanie zlyhalo. Skontroluj API_URL/KÓDY.'); }
   });
 }
 
-const btnLoadTop=document.getElementById('loadTop'); if(btnLoadTop){ btnLoadTop.addEventListener('click', ()=> loadTop()); }
+const btnLoadTop=document.getElementById('loadTop');
+if(btnLoadTop){ btnLoadTop.addEventListener('click', ()=> loadTop()); }
 function loadTop(){
   if(!API_URL){ alert('Rebríček je vypnutý (API_URL je prázdne).'); return; }
-  const cb='cb'+Math.random().toString(36).slice(2); window[cb]=(data)=>{ delete window[cb]; const tbody=document.getElementById('leaderBody'); if(!tbody) return; tbody.innerHTML=''; if(!data||!data.ok){ tbody.innerHTML='<tr><td colspan="4" class="muted">Chyba načítania.</td></tr>'; return; } data.top.forEach((r,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${i+1}</td><td>${escapeHtml(r.nickname||'—')}</td><td>${r.score}</td><td>${new Date(r.ts).toLocaleDateString()}</td>`; tbody.appendChild(tr); }); const li=document.getElementById('leaderInfo'); if(li) li.textContent='Načítané '+data.top.length+' záznamov.'; };
-  const s=document.createElement('script'); s.src = API_URL + '?action=top&limit=20&class=' + encodeURIComponent(CLASS_CODE) + '&token=' + encodeURIComponent(CLASS_TOKEN) + '&callback='+cb; document.body.appendChild(s);
+  const cb='cb'+Math.random().toString(36).slice(2);
+  window[cb]=(data)=>{ delete window[cb];
+    const tbody=document.getElementById('leaderBody'); if(!tbody) return;
+    tbody.innerHTML='';
+    if(!data||!data.ok){ tbody.innerHTML='<tr><td colspan="4" class="muted">Chyba načítania.</td></tr>'; return; }
+    data.top.forEach((r,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${i+1}</td><td>${escapeHtml(r.nickname||'—')}</td><td>${r.score}</td><td>${new Date(r.ts).toLocaleDateString()}</td>`; tbody.appendChild(tr); });
+    const li=document.getElementById('leaderInfo'); if(li) li.textContent='Načítané '+data.top.length+' záznamov.';
+  };
+  const s=document.createElement('script');
+  s.src = API_URL + '?action=top&limit=20&class=' + encodeURIComponent(CLASS_CODE) + '&token=' + encodeURIComponent(CLASS_TOKEN) + '&callback='+cb;
+  document.body.appendChild(s);
 }
 
-/* ===== INIT ===== */
+/* ===== INIT + PWA ===== */
 function init(){ renderFamilies(); next(); renderHeat(); renderProfile(); renderAnalytics(); }
 init();
-
-/* PWA: Service Worker registrácia */
 if('serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }); }
 </script>
 </body>
