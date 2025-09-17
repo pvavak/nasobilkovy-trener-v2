@@ -1,8 +1,8 @@
-// Jednoduchý Service Worker – cache statiky (cache-first)
-const CACHE = 'nasobilka-v8'; // zmeň pri každom vydaní
+// PWA service worker – cache statiky (cache-first)
+const CACHE = 'nasobilka-v10'; // pri každej väčšej zmene zvýš číslo
 
 const ASSETS = [
-  '/',                     // root
+  '/',
   '/index.html',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
@@ -10,15 +10,11 @@ const ASSETS = [
   '/sw.js'
 ];
 
-// Inštalácia – precache
 self.addEventListener('install', (e) => {
   self.skipWaiting();
-  e.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).catch(()=>{})
-  );
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(()=>{}));
 });
 
-// Aktivácia – vymaž staré cache
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -27,11 +23,10 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Fetch – cache-first pre statiku, sieť pre ostatné
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  // Nechytaj Apps Script (API) do cache – nech ide vždy na sieť
+  // Apps Script (API) nikdy necachuj – vždy sieť
   if (/script\.google\.com\/macros/.test(url.href)) return;
 
   if (e.request.method !== 'GET') return;
