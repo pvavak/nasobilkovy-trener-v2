@@ -198,12 +198,12 @@ function dropConfetti(){ for(let i=0;i<60;i++){ const s=document.createElement('
 
 /* ====== PROFIL / LOKÁLNE DÁTA (safe) ====== */
 const PROF_KEY='leaderProfileV1', HEAT_KEY='heatV1', HIST_KEY='testHistoryV1', STREAK_KEY='streakDaysV1';
-function safeGet(key, fallback){ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):(fallback??null);}catch(e){ console.warn('ls get',e); return (fallback??null);} }
-function safeSet(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); return true;}catch(e){ console.warn('ls set',e); alert('Nepodarilo sa uložiť do zariadenia. Povoľ ukladanie dát alebo skús iný prehliadač.'); return false;} }
+function safeGet(k,f){ try{const v=localStorage.getItem(k); return v?JSON.parse(v):(f??null);}catch(e){return (f??null);} }
+function safeSet(k,v){ try{localStorage.setItem(k,JSON.stringify(v)); return true;}catch(e){ alert('Nepodarilo sa uložiť do zariadenia.'); return false; } }
 function saveProfile(p){ return safeSet(PROF_KEY,p); }
 function loadProfile(){ return safeGet(PROF_KEY,{})||{}; }
 function getDeviceId(){ const k='deviceIdV1'; let id=safeGet(k,null); if(!id){ id='d-'+Math.random().toString(36).slice(2)+'-'+Date.now(); safeSet(k,id);} return id; }
-function todayYmd(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function todayYmd(){ return new Date().toISOString().slice(0,10); }
 function markStreakToday(){ const s=new Set(safeGet(STREAK_KEY,[])||[]); s.add(todayYmd()); safeSet(STREAK_KEY,[...s]); }
 function computeStreak(){ const set=new Set(safeGet(STREAK_KEY,[])||[]); let cnt=0,now=new Date(); for(let i=0;i<400;i++){ const d=new Date(now); d.setDate(now.getDate()-i); const y=d.toISOString().slice(0,10); if(set.has(y)) cnt++; else break; } return cnt; }
 
@@ -282,7 +282,7 @@ function renderAnalytics(){
   anaBadges.innerHTML=badges.map(x=>`<span class="pill">${x}</span>`).join(' ');
 }
 
-/* ====== REBRÍČEK (JSONP ako default – spoľahlivé) ====== */
+/* ====== REBRÍČEK ====== */
 function renderProfile(){
   const p=loadProfile();
   const nick=document.getElementById('nick'), cls=document.getElementById('classCode'), sig=document.getElementById('signature');
@@ -299,9 +299,9 @@ if(btnSaveProfile){
     if(saveProfile(p)){ renderProfile(); alert('Profil uložený ✓'); }
   });
 }
-
 function openLeader(){ show('section-leader'); renderProfile(); }
 
+// --- odoslanie skóre cez JSONP (spoľahlivé na GAS) ---
 function sendScoreJSONP(body){
   return new Promise((resolve)=>{
     const cb='cb'+Math.random().toString(36).slice(2);
@@ -310,7 +310,6 @@ function sendScoreJSONP(body){
     const s=document.createElement('script'); s.src=API_URL+'?'+qs.toString(); document.body.appendChild(s);
   });
 }
-
 const btnSubmit=document.getElementById('submitScore');
 if(btnSubmit){
   btnSubmit.addEventListener('click', async ()=>{
@@ -321,27 +320,65 @@ if(btnSubmit){
     if(!p.signature){ alert('Doplň svoj podpis (meno/prezývka).'); return; }
     if(!API_URL){ alert('Rebríček je vypnutý (API_URL je prázdne).'); return; }
     const body={ classCode:CLASS_CODE, token:CLASS_TOKEN, nickname:p.nickname, score:t.score, total:t.total, deviceId:getDeviceId(), signature:p.signature };
-    const d = await sendScoreJSONP(body); // JSONP default (spoľahlivé na GAS)
+    const d = await sendScoreJSONP(body);
     if (d && d.ok) { alert('Skóre odoslané ✓'); }
     else { alert('Odoslanie zlyhalo. Skontroluj API_URL / CLASS_CODE / CLASS_TOKEN.'); }
   });
 }
 
+// --- načítanie rebríčka: najprv JSONP, ak nie, padne na fetch(JSON) ---
 const btnLoadTop=document.getElementById('loadTop');
 if(btnLoadTop){ btnLoadTop.addEventListener('click', ()=> loadTop()); }
 function loadTop(){
   if(!API_URL){ alert('Rebríček je vypnutý (API_URL je prázdne).'); return; }
-  const cb='cb'+Math.random().toString(36).slice(2);
-  window[cb]=(data)=>{ delete window[cb];
-    const tbody=document.getElementById('leaderBody'); if(!tbody) return;
-    tbody.innerHTML='';
-    if(!data||!data.ok){ tbody.innerHTML='<tr><td colspan="4" class="muted">Chyba načítania.</td></tr>'; return; }
-    data.top.forEach((r,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${i+1}</td><td>${escapeHtml(r.nickname||'—')}</td><td>${r.score}</td><td>${new Date(r.ts).toLocaleDateString()}</td>`; tbody.appendChild(tr); });
-    const li=document.getElementById('leaderInfo'); if(li) li.textContent='Načítané '+data.top.length+' záznamov.';
-  };
-  const s=document.createElement('script');
-  s.src = API_URL + '?action=top&limit=20&class=' + encodeURIComponent(CLASS_CODE) + '&token=' + encodeURIComponent(CLASS_TOKEN) + '&callback='+cb;
+
+  const tbody = document.getElementById('leaderBody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="muted">Načítavam…</td></tr>';
+
+  const classParam = encodeURIComponent(CLASS_CODE);
+  const tokenParam = encodeURIComponent(CLASS_TOKEN);
+
+  let resolved = false;
+  const cb = 'cb'+Math.random().toString(36).slice(2);
+  window[cb] = (data) => { if(resolved) return; resolved=true; cleanup(); renderTopTable(data); };
+
+  const s = document.createElement('script');
+  s.id = 'jsonpTop';
+  s.src = API_URL + '?action=top&limit=20&class=' + classParam + '&token=' + tokenParam + '&callback=' + cb;
   document.body.appendChild(s);
+
+  const t = setTimeout(async () => {
+    if (resolved) return;
+    cleanup();
+    try{
+      const r = await fetch(API_URL + '?action=top&limit=20&class=' + classParam + '&token=' + tokenParam);
+      const data = await r.json().catch(()=>null);
+      resolved = true;
+      renderTopTable(data);
+    }catch(e){
+      resolved = true;
+      renderTopTable(null);
+    }
+  }, 1500);
+
+  function cleanup(){ clearTimeout(t); delete window[cb]; const el=document.getElementById('jsonpTop'); if(el) el.remove(); }
+}
+function renderTopTable(data){
+  const tbody = document.getElementById('leaderBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if(!data || !data.ok || !Array.isArray(data.top) || data.top.length===0){
+    tbody.innerHTML = '<tr><td colspan="4" class="muted">Zatiaľ nič alebo chyba načítania.</td></tr>';
+    const li=document.getElementById('leaderInfo'); if(li) li.textContent='Načítanie rebríčka zlyhalo alebo je prázdny.';
+    return;
+  }
+  data.top.forEach((r,i) => {
+    const tr=document.createElement('tr');
+    const dt = r.ts ? new Date(r.ts).toLocaleDateString() : '—';
+    tr.innerHTML = `<td>${i+1}</td><td>${escapeHtml(r.nickname||'—')}</td><td>${r.score}</td><td>${dt}</td>`;
+    tbody.appendChild(tr);
+  });
+  const li=document.getElementById('leaderInfo'); if(li) li.textContent='Načítané '+data.top.length+' záznamov.';
 }
 
 /* ===== INIT + PWA ===== */
