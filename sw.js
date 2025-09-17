@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nasobilka-v2';
+const CACHE_NAME = 'nasobilka-v4';
 const ASSETS = [
   './',
   './index.html',
